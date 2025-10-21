@@ -10,16 +10,21 @@ import java.util.List;
 
 @Getter @Setter
 @NoArgsConstructor @AllArgsConstructor @Builder
-@Entity @Table(name = "turma")
+@Entity
+@Table(name = "turma",
+       uniqueConstraints = @UniqueConstraint(name = "uk_turma_codigo", columnNames = "codigo"))
 public class Turma {
 
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @NotNull
+    @Column(nullable = false, length = 20)
+    private String codigo;
+
+    @Column(nullable = false)
     private Integer ano;
 
-    @NotBlank @Size(max = 20)
+    @Column(nullable = false, length = 20)
     private String periodo;
 
     @ManyToOne(optional = false)
@@ -31,7 +36,6 @@ public class Turma {
     private Disciplina disciplina;
 
     @OneToMany(mappedBy = "turma")
-    @JsonIgnore
     @Builder.Default
-    private List<Inscricao> inscricoes = new ArrayList<>();
+    private java.util.List<Inscricao> inscricoes = new java.util.ArrayList<>();
 }

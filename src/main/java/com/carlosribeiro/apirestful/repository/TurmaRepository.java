@@ -12,16 +12,30 @@ public interface TurmaRepository extends JpaRepository<Turma, Long> {
 
     @Query("""
            select new com.carlosribeiro.apirestful.dto.TurmaListDTO(
-               t.id, t.ano, t.periodo, d.nome, p.nome, count(i.id)
+             t.id, t.codigo, t.ano, t.periodo, d.nome, p.nome, count(i.id)
            )
            from Turma t
            join t.professor p
            join t.disciplina d
            left join t.inscricoes i
-           group by t.id, t.ano, t.periodo, d.nome, p.nome
-           order by t.ano desc, t.periodo desc
+           group by t.id, t.codigo, t.ano, t.periodo, d.nome, p.nome
+           order by t.codigo asc
            """)
     List<TurmaListDTO> listarResumo();
+
+    @Query("""
+           select new com.carlosribeiro.apirestful.dto.TurmaListDTO(
+             t.id, t.codigo, t.ano, t.periodo, d.nome, p.nome, count(i.id)
+           )
+           from Turma t
+           join t.professor p
+           join t.disciplina d
+           left join t.inscricoes i
+           where lower(t.codigo) like lower(concat(:prefixo, '%'))
+           group by t.id, t.codigo, t.ano, t.periodo, d.nome, p.nome
+           order by t.codigo asc
+           """)
+    List<TurmaListDTO> buscarPorCodigoPrefixo(String prefixo);
 
     @Query("""
            select distinct t from Turma t
