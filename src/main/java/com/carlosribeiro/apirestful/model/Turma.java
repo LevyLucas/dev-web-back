@@ -26,6 +26,10 @@ public class Turma {
     @JoinColumn(name = "professor_id", nullable = false)
     private Professor professor;
 
+    @ManyToOne(optional = false)
+    @JoinColumn(name = "disciplina_id", nullable = false)
+    private Disciplina disciplina;
+
     @OneToMany(mappedBy = "turma")
     @JsonIgnore
     @Builder.Default

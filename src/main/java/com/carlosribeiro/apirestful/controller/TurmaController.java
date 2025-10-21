@@ -21,6 +21,16 @@ public class TurmaController {
         return turmaService.cadastrar(req);
     }
 
+    @GetMapping
+    public java.util.List<com.carlosribeiro.apirestful.dto.TurmaListDTO> listar() {
+        return turmaService.listarResumo();
+    }
+
+    @GetMapping("/{id}")
+    public com.carlosribeiro.apirestful.dto.TurmaDetalheDTO detalhe(@PathVariable Long id) {
+        return turmaService.buscarDetalhe(id);
+    }
+
     @DeleteMapping("/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void remover(@PathVariable Long id) {

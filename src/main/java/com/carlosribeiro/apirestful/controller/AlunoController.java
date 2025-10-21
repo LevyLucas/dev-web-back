@@ -33,6 +33,11 @@ public class AlunoController {
     public Aluno buscarPorMatricula(@PathVariable String matricula) {
         return alunoService.buscarPorMatricula(matricula);
     }
+    
+    @GetMapping("/dto")
+    public java.util.List<com.carlosribeiro.apirestful.dto.AlunoDTO> listarDTO() {
+        return alunoService.listarDTO();
+    }
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)

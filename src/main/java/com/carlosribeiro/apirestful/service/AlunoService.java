@@ -39,6 +39,12 @@ public class AlunoService {
         return alunoRepository.save(aluno);
     }
 
+    public java.util.List<com.carlosribeiro.apirestful.dto.AlunoDTO> listarDTO() {
+    return alunoRepository.findAll().stream()
+            .map(a -> new com.carlosribeiro.apirestful.dto.AlunoDTO(a.getId(), a.getNome(), a.getEmail()))
+            .toList();
+    }
+
     @Transactional
     public Aluno alterar(Aluno aluno) {
         alunoRepository.findWithLockById(aluno.getId())
