@@ -1,12 +1,18 @@
 package com.carlosribeiro.apirestful.controller;
 
 import com.carlosribeiro.apirestful.controller.dto.TurmaRequest;
+import com.carlosribeiro.apirestful.dto.AlunoDTO;
+import com.carlosribeiro.apirestful.dto.TurmaDetalheDTO;
+import com.carlosribeiro.apirestful.dto.TurmaListDTO;
 import com.carlosribeiro.apirestful.model.Turma;
 import com.carlosribeiro.apirestful.service.TurmaService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RequiredArgsConstructor
 @RestController
@@ -22,26 +28,45 @@ public class TurmaController {
     }
 
     @GetMapping
-    public java.util.List<com.carlosribeiro.apirestful.dto.TurmaListDTO> listar() {
+    public List<TurmaListDTO> listar() {
         return turmaService.listarResumo();
     }
 
     @GetMapping("/search")
-    public java.util.List<com.carlosribeiro.apirestful.dto.TurmaListDTO> search(@RequestParam String q) {
+    public List<TurmaListDTO> search(@RequestParam String q) {
         return turmaService.buscarPorCodigoPrefixo(q);
     }
 
     @GetMapping("/{id}")
-    public com.carlosribeiro.apirestful.dto.TurmaDetalheDTO detalhe(@PathVariable Long id) {
+    public TurmaDetalheDTO detalhe(@PathVariable Long id) {
         return turmaService.buscarDetalhe(id);
     }
 
     @GetMapping("/{id}/alunos")
-    public org.springframework.data.domain.Page<com.carlosribeiro.apirestful.dto.AlunoDTO> alunos(
+    public Page<AlunoDTO> alunos(
             @PathVariable Long id,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "5") int size) {
         return turmaService.alunosPaginado(id, page, size);
+    }
+
+    @GetMapping("/disciplinas/{disciplinaId}")
+    public List<Turma> turmasDaDisciplina(@PathVariable Long disciplinaId) {
+        return turmaService.listarPorDisciplina(disciplinaId);
+    }
+
+    @GetMapping("/por-disciplina")
+    public List<TurmaListDTO> turmasPorDisciplina(@RequestParam Long disciplinaId) {
+        return turmaService.listarResumoPorDisciplina(disciplinaId);
+    }
+
+    @GetMapping("/{id}/alunos/disponiveis")
+    public Page<AlunoDTO> alunosDisponiveis(
+            @PathVariable Long id,
+            @RequestParam(defaultValue = "") String q,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size) {
+        return turmaService.alunosDisponiveis(id, q, page, size);
     }
 
     @DeleteMapping("/{id}")

@@ -46,4 +46,20 @@ public interface TurmaRepository extends JpaRepository<Turma, Long> {
            where t.id = :id
            """)
     Optional<Turma> buscarDetalhe(Long id);
+
+    List<Turma> findByDisciplinaId(Long disciplinaId);
+
+    @Query("""
+           select new com.carlosribeiro.apirestful.dto.TurmaListDTO(
+             t.id, t.codigo, t.ano, t.periodo, d.nome, p.nome, count(i.id)
+           )
+           from Turma t
+           join t.professor p
+           join t.disciplina d
+           left join t.inscricoes i
+           where d.id = :disciplinaId
+           group by t.id, t.codigo, t.ano, t.periodo, d.nome, p.nome
+           order by t.codigo asc
+           """)
+    List<TurmaListDTO> listarResumoPorDisciplina(Long disciplinaId);
 }

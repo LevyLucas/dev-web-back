@@ -6,12 +6,11 @@ import com.carlosribeiro.apirestful.exception.EntidadeNaoEncontradaException;
 import com.carlosribeiro.apirestful.model.Disciplina;
 import com.carlosribeiro.apirestful.model.Professor;
 import com.carlosribeiro.apirestful.model.Turma;
-import com.carlosribeiro.apirestful.repository.DisciplinaRepository;
-import com.carlosribeiro.apirestful.repository.ProfessorRepository;
-import com.carlosribeiro.apirestful.repository.TurmaRepository;
-import com.carlosribeiro.apirestful.repository.InscricaoRepository;
+import com.carlosribeiro.apirestful.repository.*;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -24,6 +23,7 @@ public class TurmaService {
     private final ProfessorRepository professorRepository;
     private final DisciplinaRepository disciplinaRepository;
     private final InscricaoRepository inscricaoRepository;
+    private final AlunoRepository alunoRepository;
 
     public List<TurmaListDTO> listarResumo() {
         return turmaRepository.listarResumo();
@@ -47,9 +47,27 @@ public class TurmaService {
         return new TurmaDetalheDTO(t.getId(), t.getAno(), t.getPeriodo(), disciplinaDTO, professorDTO, alunos);
     }
 
-    public org.springframework.data.domain.Page<AlunoDTO> alunosPaginado(Long turmaId, int page, int size) { // << NOVO
-        var pageable = org.springframework.data.domain.PageRequest.of(page, size);
+    public Page<AlunoDTO> alunosPaginado(Long turmaId, int page, int size) {
+        var pageable = PageRequest.of(page, size);
         return inscricaoRepository.listarAlunosPorTurma(turmaId, pageable);
+    }
+
+    public List<Turma> listarPorDisciplina(Long disciplinaId) {
+        return turmaRepository.findByDisciplinaId(disciplinaId);
+    }
+
+    public List<TurmaListDTO> listarResumoPorDisciplina(Long disciplinaId) {
+        return turmaRepository.listarResumoPorDisciplina(disciplinaId);
+    }
+
+    public Page<AlunoDTO> alunosDisponiveis(Long turmaId, String q, int page, int size) {
+        var pageable = PageRequest.of(page, size);
+        var idsInscritos = inscricaoRepository.findAlunoIdsByTurma(turmaId);
+        var nome = (q == null) ? "" : q.trim();
+        var pg = idsInscritos.isEmpty()
+                ? alunoRepository.findByNomeContainingIgnoreCase(nome, pageable)
+                : alunoRepository.findByNomeContainingIgnoreCaseAndIdNotIn(nome, idsInscritos, pageable);
+        return pg.map(a -> new AlunoDTO(a.getId(), a.getNome(), a.getEmail()));
     }
 
     @Transactional

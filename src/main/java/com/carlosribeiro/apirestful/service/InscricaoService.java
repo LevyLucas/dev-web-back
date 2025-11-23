@@ -1,6 +1,8 @@
 package com.carlosribeiro.apirestful.service;
 
 import com.carlosribeiro.apirestful.controller.dto.InscricaoRequest;
+import com.carlosribeiro.apirestful.dto.AlunoDTO;
+import com.carlosribeiro.apirestful.dto.InscricaoDTO;
 import com.carlosribeiro.apirestful.exception.EntidadeNaoEncontradaException;
 import com.carlosribeiro.apirestful.model.Aluno;
 import com.carlosribeiro.apirestful.model.Inscricao;
@@ -23,13 +25,11 @@ public class InscricaoService {
     private final TurmaRepository turmaRepository;
 
     @Transactional
-    public Inscricao cadastrar(InscricaoRequest req) {
+    public InscricaoDTO cadastrar(InscricaoRequest req) {
         Aluno aluno = alunoRepository.findById(req.alunoId())
-                .orElseThrow(() -> new EntidadeNaoEncontradaException(
-                        "Aluno com id = " + req.alunoId() + " não encontrado."));
+                .orElseThrow(() -> new EntidadeNaoEncontradaException("Aluno com id = " + req.alunoId() + " não encontrado."));
         Turma turma = turmaRepository.findById(req.turmaId())
-                .orElseThrow(() -> new EntidadeNaoEncontradaException(
-                        "Turma com id = " + req.turmaId() + " não encontrada."));
+                .orElseThrow(() -> new EntidadeNaoEncontradaException("Turma com id = " + req.turmaId() + " não encontrada."));
 
         Inscricao i = Inscricao.builder()
                 .aluno(aluno)
@@ -37,13 +37,13 @@ public class InscricaoService {
                 .dataHora(req.dataHora() != null ? req.dataHora() : LocalDateTime.now())
                 .build();
 
-        return inscricaoRepository.save(i);
+        var saved = inscricaoRepository.save(i);
+        return new InscricaoDTO(saved.getId(), new AlunoDTO(aluno.getId(), aluno.getNome(), aluno.getEmail()));
     }
 
     public void remover(Long id) {
         Inscricao i = inscricaoRepository.findById(id)
-                .orElseThrow(() -> new EntidadeNaoEncontradaException(
-                        "Inscrição com id = " + id + " não encontrada."));
+                .orElseThrow(() -> new EntidadeNaoEncontradaException("Inscrição com id = " + id + " não encontrada."));
         inscricaoRepository.delete(i);
     }
 }

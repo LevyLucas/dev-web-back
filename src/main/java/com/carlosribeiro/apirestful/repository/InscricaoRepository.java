@@ -7,6 +7,8 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.*;
 import org.springframework.data.repository.query.Param;
 
+import java.util.List;
+
 public interface InscricaoRepository extends JpaRepository<Inscricao, Long> {
 
     @Query("""
@@ -14,7 +16,10 @@ public interface InscricaoRepository extends JpaRepository<Inscricao, Long> {
            from Inscricao i
            join i.aluno a
            where i.turma.id = :turmaId
-           order by a.nome asc
+           order by i.id desc
            """)
     Page<AlunoDTO> listarAlunosPorTurma(@Param("turmaId") Long turmaId, Pageable pageable);
+
+    @Query("select i.aluno.id from Inscricao i where i.turma.id = :turmaId")
+    List<Long> findAlunoIdsByTurma(@Param("turmaId") Long turmaId);
 }
