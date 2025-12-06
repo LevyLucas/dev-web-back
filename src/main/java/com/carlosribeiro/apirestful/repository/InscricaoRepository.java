@@ -22,4 +22,6 @@ public interface InscricaoRepository extends JpaRepository<Inscricao, Long> {
 
     @Query("select i.aluno.id from Inscricao i where i.turma.id = :turmaId")
     List<Long> findAlunoIdsByTurma(@Param("turmaId") Long turmaId);
+
+    boolean existsByAlunoId(Long alunoId);
 }

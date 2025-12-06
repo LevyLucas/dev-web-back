@@ -3,9 +3,12 @@ package com.carlosribeiro.apirestful.service;
 import com.carlosribeiro.apirestful.exception.EntidadeNaoEncontradaException;
 import com.carlosribeiro.apirestful.model.Aluno;
 import com.carlosribeiro.apirestful.repository.AlunoRepository;
+import com.carlosribeiro.apirestful.repository.InscricaoRepository;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
 
@@ -14,6 +17,7 @@ import java.util.List;
 public class AlunoService {
 
     private final AlunoRepository alunoRepository;
+    private final InscricaoRepository inscricaoRepository;
 
     public List<Aluno> listar() {
         return alunoRepository.findAll();
@@ -39,10 +43,10 @@ public class AlunoService {
         return alunoRepository.save(aluno);
     }
 
-    public java.util.List<com.carlosribeiro.apirestful.dto.AlunoDTO> listarDTO() {
-    return alunoRepository.findAll().stream()
-            .map(a -> new com.carlosribeiro.apirestful.dto.AlunoDTO(a.getId(), a.getNome(), a.getEmail()))
-            .toList();
+    public List<com.carlosribeiro.apirestful.dto.AlunoDTO> listarDTO() {
+        return alunoRepository.findAll().stream()
+                .map(a -> new com.carlosribeiro.apirestful.dto.AlunoDTO(a.getId(), a.getNome(), a.getEmail()))
+                .toList();
     }
 
     @Transactional
@@ -55,6 +59,14 @@ public class AlunoService {
 
     public void remover(Long id) {
         buscarPorId(id);
+
+        if (inscricaoRepository.existsByAlunoId(id)) {
+            throw new ResponseStatusException(
+                    HttpStatus.BAD_REQUEST,
+                    "Não é possível remover aluno inscrito em turma."
+            );
+        }
+
         alunoRepository.deleteById(id);
     }
 }
